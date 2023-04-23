@@ -1,3 +1,7 @@
+body {
+    background-color: #f5f5f5;
+}
+
 .nav {
     display: flex;
     position: relative;
@@ -15,6 +19,7 @@
     margin: 0 auto;
 
 }
+
 .nav_logo {
     height: 70px;
     width: 64px;
@@ -184,3 +189,84 @@
 .btn_right:hover {
     background-position-x: -42px;
 }
+
+.title {
+    position: absolute;
+    top: 334px;
+    left: 0;
+    width: 1080px;
+    height: 34.6px;
+    font-size: 20px;
+    margin-top: 30px;
+    border-bottom: 1px solid red;
+}
+
+/* .song_list_2 {
+/*     position: relative; 
+    background-color: #ffff;
+}*/
+
+.song_list-body {
+    position: absolute;
+    left: 0;
+    top: 394px;
+    width: 1200px;
+
+    /*  background-color: pink; */
+    margin-top: 30px;
+    align-items: center;
+    justify-content: space-between
+}
+
+.song_content {
+    display: flex;
+    flex: 3;
+    align-items: center;
+    justify-content: space-between
+}
+
+.song_content div {
+    width: 300px;
+    height: 300px;
+}
+
+.song_content div img {
+    width: 240px;
+    height: 240px;
+    border: 1px solid gray;
+}
+
+.song_content div a p:hover {
+    text-decoration: underline
+}
+
+
+/* .body_active {
+    display: flex;
+    flex: 3;
+}
+ */
+/* .body div {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    background-color: pink;
+} */
+
+/* .body_active_img {
+    position: absolute;
+    top: 0;
+    left: 0; */
+/* width: 300px;
+    height: 240px; */
+/* background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url(../pic/{no.001}\ \(5\).jpg);
+    object-fit: cover; 
+}*/
+
+/* .body_active_img img {
+    width: 300px;
+    height: 240px;
+    object-fit: cover;
+} */

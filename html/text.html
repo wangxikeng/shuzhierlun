@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .search-list {
+            display: none;
+        }
+
+        .active {
+            width: 1200px;
+            margin: 0 auto;
+        }
+
+        .lrc-all-warp {
+            position: relative;
+            overflow: hidden;
+            width: 800px;
+            height: 400px;
+        }
+
+        #lrc-warp {
+
+            position: absolute;
+            left: 521px;
+
+        }
+        #audio{
+            position: fixed;
+            bottom: 0;
+        }
+
+    </style>
+</head>
+
+
+<body>
+    <div>
+        <input type="text" id="keyword">
+        <button id="search-button">搜索</button>
+    </div>
+    <!-- 搜素列表 -->
+    <div class="search-list">
+        <ul id="result-list">
+
+        </ul>
+    </div>
+    <!-- 歌词容器 -->
+    <div class="lrc-all-warp">
+        <ul id="lrc-warp">
+
+        </ul>
+    </div>
+    <!-- 音频 -->
+    <audio src="" id="audio" controls></audio>
+
+
+</body>
+<script>
+    // const result = document.getElementById("result");
+    // result.addEventListener('mouseover', function () {
+    //     const xhr = new XMLHttpRequest();
+    //     xhr.open('get', "http://localhost:3000/search?keywords= 海阔天空");
+    //     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    //     xhr.responseType='json';
+    //     xhr.send();
+    //     xhr.onreadystatechange = function () {
+    //         if (xhr.readyState === 4) {
+    //             if (xhr.status >= 200 && xhr.status < 300) {
+    //                 // let data = JSON.parse(xhr.response);
+    //                 //  let songs = data.result.songs; 
+    //                 //  console.log(songs);
+    //                 //  let firstSongId=songs[0];
+    //                 //  console.log(firstSongId);
+    //                 /* console.log(xhr.response.result.songs);
+    //                 var arr=xhr.response.result.songs
+    //                 for(var i=0;i<arr.length;i++){
+    //                     console.log(arr[i]);;
+    //                 }
+    //             } */
+    //         }
+    //     }
+    // })
+    //封装get 请求
+    let get = function (url, data, callback) {
+        let xhr = new XMLHttpRequest();
+        let param = '?';
+        //遍历数据对象
+        for (let key in data) {
+            //找到属于自己的属性
+            if (data.hasOwnProperty(key)) {
+                //开始拼接地址
+                param += key + '=' + data[key] + '&'
+            }
+        }
+        //截取地址
+        param = param.slice(0, param.length - 1);
+        xhr.open('get', url + param);
+        xhr.send();
+        xhr.onreadystatechange = function () {
+            if (xhr.status == 200 && xhr.readyState == 4) {
+                if (callback) {
+                    callback(JSON.parse(xhr.response));
+                }
+            }
+        }
+
+    }
+    //建立一个搜索函数
+    let search = function (keywords, callback) {
+        get('http://localhost:3000/search', { keywords: keywords }, function (res) {
+            if (callback) {
+                //获得歌曲
+                callback(res.result.songs);
+            }
+        })
+    }
+    //播放封装
+    let getSongUrl = function (id, callback) {
+        get('http://localhost:3000/song/url', { id: id }, function (res) {
+            //音乐播放连接
+            if (callback) {
+                callback(res.data[0].url);
+            }
+        })
+    }
+    //获取歌词
+    let getLrc = function (id, callback) {
+        get('http://localhost:3000/lyric', { id: id }, function (res) {
+            let lrcString = res.lrc.lyric;
+            if (callback) {
+                callback(lrcString);
+            }
+        })
+    }
+    //构造打开列表，关闭列表的方法
+    let searchList = document.querySelector('.search-list');
+    let closeSearchList = function () {
+        searchList.className = 'search-list';
+    }
+    let openSearchList = function () {
+        searchList.className = ' active'
+    }
+    //渲染html
+    let resultList = document.getElementById('result-list');
+    let renderSearchList = function (key) {
+        search(key, function (res) {
+            /*   console.log(res); */
+            //模板
+            let tpl = '<li class="songs" data-id="{--id--}">' +
+                '<h3>{--name--}</h3>' +
+                '<h5><span>{--geshou--}</span> - 专辑：<span>{--zhuanji--}</span></h5>' +
+                '<hr>' + '</li>'
+            let html = '';
+            for (let i = 0; i < res.length; i++) {
+                html += tpl.replace('{--name--}', res[i].name)
+                    .replace('{--geshou--}', res[i].artists[0].name)
+                    .replace('{--zhuanji--}', res[i].album.name)
+                    .replace("{--id--}", res[i].id)
+            }
+            resultList.innerHTML = html;
+            openSearchList();//打开列表
+            addEventListener();//有点不明白
+        })
+    }
+    //获取Input 里的内容
+    let searchButton = document.getElementById('search-button');
+    let keywordInput = document.getElementById('keyword');
+    searchButton.addEventListener('click', function () {
+        let value = keywordInput.value;
+        renderSearchList(value);
+    })
+    //点击音乐进行播放
+    let audio = document.getElementById('audio');
+    //做一个li 点击事件
+    let addEventListener = function () {
+        let songs = document.getElementsByClassName('songs');
+        for (let i = 0; i < songs.length; i++) {
+            songs[i].addEventListener('click', function () {
+                //getAttribute
+                let id = this.getAttribute('data-id');
+                //通过getSongUrl 播放音乐
+                getSongUrl(id, function (url) {
+                    //通过src来播放
+                    audio.src = url;
+                    audio.play();
+                    closeSearchList();
+                })
+                //展示歌词
+                getLrc(id, function (res) {
+                    let lrc = parseLrc(res);
+                    console.log(lrc);
+                    fillLrc(lrc);
+                })
+                //清空歌词
+                let lrcWarp = document.getElementById('lrc-warp');
+                if (lrcWarp) {
+                    lrcWarp.innerHTML = '';
+                }
+            })
+        }
+    }
+    let parseLrc = function (lrcString) {
+        //将时间字符串类型转化为number型 做成一个函数
+        let parseTime = function (timeString) {
+            //切分钟
+            let timeStringArr = timeString.split(':');
+            let min = parseInt(timeStringArr[0]);
+            let s = parseFloat(timeStringArr[1]);
+            let totalTime = (min * 60 + s) * 1000;
+            return parseInt(totalTime);
+        }
+        let lrcArr = [];
+        //通过split()方法去切歌词
+        lrcArr = lrcString.split('\n');
+        let lrcObjArr = [];
+        //遍历 通过split() 方法来']' 切时间和歌词
+        for (let i = 0; i < lrcArr.length; i++) {
+            let lines = lrcArr[i].split(']');
+            //提取时间
+            let time = parseTime(lines[0].slice(1, lines[0].length))
+            //内容
+            let content = lines[1];
+            if (content == undefined || isNaN(time)) {
+                continue
+            }
+            lrcObjArr.push({
+                //将字符串转化为数组
+                time: time,
+                content: content
+            })
+        }
+        return lrcObjArr
+    }
+    //封装歌词填充方法
+    let tpl = '<li class="lrc-item">{--content--}</li>';
+    //歌词填充
+    let lrcWarp = document.getElementById('lrc-warp');
+    let fillLrc = function (lrcObjArr) {
+        let html = '';
+        for (let i = 0; i < lrcObjArr.length; i++) {
+            html += tpl.replace('{--content--}', lrcObjArr[i].content);
+        }
+        lrcWarp.innerHTML = html;
+        nowLrcObject = lrcObjArr;
+    }
+    //歌词滚动
+    let index = 0;
+    //初始距离
+    let marginTop = 240;
+    let nowLrcObject = [];
+    let compareLrc = function () {
+        //html中获取全部歌词
+        let lrcItem = document.getElementsByClassName('lrc-item');
+        //对比时间
+        if (nowLrcObject[index].time - audio.currentTime * 1000 < 300) {
+            lrcItem[index].style.color = 'red';
+            //歌词上移
+            marginTop -= 20;
+            lrcWarp.style.marginTop = marginTop + 'px';
+            lrcItem[index].style.fontsise = '1.2em';
+            //将上一句的高亮去掉
+            if (index - 1 > -1) {
+                lrcItem[index - 1].style.color = '';
+                lrcItem[index - 1].style.fontsize = '';
+            }
+            index++;
+        }
+    }
+    audio.addEventListener('timeupdate', function () {
+        compareLrc();
+    })
+</script>
+
+</html>

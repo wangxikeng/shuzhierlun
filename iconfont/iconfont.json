@@ -1,0 +1,30 @@
+{
+  "id": "3949739",
+  "name": "1",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "2076218",
+      "name": "播放2",
+      "font_class": "bofang",
+      "unicode": "e87c",
+      "unicode_decimal": 59516
+    },
+    {
+      "icon_id": "35043402",
+      "name": "next",
+      "font_class": "next",
+      "unicode": "e662",
+      "unicode_decimal": 58978
+    },
+    {
+      "icon_id": "35043451",
+      "name": "previous",
+      "font_class": "previous",
+      "unicode": "e664",
+      "unicode_decimal": 58980
+    }
+  ]
+}
